@@ -1,0 +1,115 @@
+@charset "UTF-8";
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body{
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* 
+<color>
+테이블 컬러: #d0e1e1
+버튼 컬러: #00B4CC
+테이블 라인 호버시 : #d0e1e1
+*/
+
+/* 커스텀 */
+.con {
+	max-width: 1150px;
+}
+
+.con-min-width {
+	min-width: 320px;
+}
+
+html, body {
+	overflow-x: hidden;
+}
+
+.title {
+	text-align:center;
+}
+
+.common-btn {
+	padding:5px 15px; 
+    background:#00B4CC; 
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px; 
+    color:white;
+	font-weight:bold;
+}
+
+.common-spc-btn {
+    background:#00B4CC; 
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px; 
+    color:white;
+	font-weight:bold;
+}
+
+.common-table {
+	text-align:left;
+	width:90%;
+	margin:20px auto;
+/* 	border-top: 3px solid #194d32; */
+/*  	border-bottom: 3px solid #d0e1e1;  */
+	border-collapse: collapse;
+/*  	border-collapse: separate; */
+/*   	border-spacing: 0 10px; */
+}
+
+.common-table th, .common-table td {
+	border: none;
+	padding: 10px;
+}
+
+.common-table tr.space {
+  	border-top: 20px solid white;
+}
+
+.common-table.common-form  {
+	border:2px solid #d0e1e1;
+}
+
+.common-table.common-form tr:not(:first-child) th {
+	border-top:2px solid white;
+}
+
+.common-form input, .common-form textarea {
+	width:95%;
+}
+
+.common-table tr.accessible {
+	cursor:pointer;
+}
+
+.common-table tr.accessible:hover {
+	background-color:#eff5f5;
+}
+
+.common-form-box {
+	padding-top:50px;
+}
+
+.common-form-menu {
+	width:90%;
+	margin:20px auto;
+}
+
+.common-form-menu .common-form-menu-btn > input {
+	width:100px;
+	margin:5px 10px;
+	padding:5px;
+}
+
+.common-form-menu {
+	text-align:center;
+}
+
+.common-form textarea {
+	min-height:350px;	
+}
+

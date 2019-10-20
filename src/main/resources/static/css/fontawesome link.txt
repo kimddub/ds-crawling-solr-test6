@@ -1,0 +1,37 @@
+head 에 아래 링크를 삽입(font awesome의 가장 최신 버전 4.3.0 임)
+
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+
+위 주소는 프로토콜 상대 주소입니다. 위 링크 삽입 후에도 실행되지 않을 경우 href=" 뒤에 http: 혹은 https:를 삽입합니다.
+
+
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css>
+
+
+
+*IE7 브라우저 지원*
+
+ie7을 지원하려면 다음 링크를 삽입
+
+*단 ie7은 Font Awesome 4.3.0버전을 지원하지 않습니다. 
+
+<!--[if IE 7]>
+  <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome-ie7.min.css">
+<![endif]-->
+
+
+Font awesome 3.2.1 버전에서 ie7을 지원함
+
+그러므로  css링크도 3.2.1 버전을 사용해야 하며, http://fontawesome.io/3.2.1/get-started/
+
+font icons 역시 3.2.1 버전을 사용합니다. http://fontawesome.io/3.2.1/icons/
+
+
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+<!--[if IE 7]>
+  <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome-ie7.min.css">
+<![endif]-->
+
+

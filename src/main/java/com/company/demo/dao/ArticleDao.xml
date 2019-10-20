@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- XML mapper dtd 등록 -->
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.company.demo.dao.ArticleDao">
+	<select id="getTotalArticleData" resultType="int">
+		SELECT IFNULL(COUNT(*),0)
+		FROM article
+	</select>
+	
+	<select id="getArticleCode" parameterType="com.company.demo.dto.Article" resultType="integer">
+		SELECT code
+		FROM article
+		WHERE id=#{id} AND siteCode=#{siteCode} AND mediaCode=#{mediaCode}
+	</select>
+	
+	<select id="getArticles" resultMap="Article">
+		SELECT *
+		FROM `article`
+		WHERE analysisState = 0
+	</select>
+
+	<select id="getSiteName" parameterType="int" resultType="string">
+		SELECT site
+		from site
+		WHERE `code` = #{siteCode}
+	</select>
+
+	<select id="getSiteList" resultType="com.company.demo.dto.Site">
+		SELECT *
+		FROM `site`
+	</select>
+
+	<select id="getCategoryList" parameterType="int" resultType="com.company.demo.dto.Category">
+		SELECT *
+		FROM `category`
+		WHERE siteCode = #{siteCode}
+	</select>
+	
+	<select id="getMediaList" parameterType="int" resultType="com.company.demo.dto.Media">
+		SELECT *
+		FROM `media`
+		ORDER BY `name`
+	</select>
+
+	<select id="getMediaCode" parameterType="string" resultType="integer">
+		SELECT code
+		FROM `media`
+		WHERE `name` LIKE #{media}
+	</select>
+	
+	<select id="getSectionId" parameterType="int" resultType="Map">
+		SELECT sectionId, subSectionId
+		FROM `category`
+		WHERE `code` = #{categoryCode}
+	</select>
+	
+	<select id="getLastDate" parameterType="int" resultType="java.util.Date">
+		SELECT regDate
+		FROM article
+		WHERE siteCode = #{siteCode}
+		AND `code` IN (SELECT articleCode FROM categorize WHERE categoryCode = #{categoryCode})
+		ORDER BY regDate DESC
+		LIMIT 1
+	</select>
+	
+	<select id="getAnalyzedArticle" resultType="int">
+		SELECT IFNULL(COUNT(*),0)
+		FROM article
+		WHERE analysisState = 1
+	</select>
+	
+	<select id="getAnalyzedData" parameterType="map" resultMap="analyzedData">
+		SELECT K.*, COUNT(K.`word`) AS `frequency` 
+		FROM `keyword` AS K
+		INNER JOIN ( SELECT `code`
+				FROM article 
+				WHERE 1=1
+				<if test="siteCode != 0 and siteCode != null and siteCode != ''" >
+					AND siteCode=#{siteCode}
+				</if>
+				<if test="mediaCode != 0 and mediaCode != null and mediaCode != ''" >
+					AND mediaCode=#{mediaCode}
+				</if>) AS A
+		ON K.articleCode = A.`code`
+		<if test="categoryCode != 0 and categoryCode != null and categoryCode != ''" >
+			INNER JOIN (
+				SELECT articleCode
+				FROM categorize
+				WHERE categoryCode = #{categoryCode}
+			) AS C
+			ON  A.code = C.articleCode
+		</if>
+		GROUP BY K.`word`
+		<if test="dateCondition == 'true' and dateCondition != null" >
+			HAVING K.articleCode IN ( SELECT `code`
+				FROM article
+				WHERE regDate BETWEEN #{startDateTime} AND #{endDateTime})
+		</if>
+		ORDER BY `frequency` DESC
+		LIMIT 50
+	</select>
+	
+	<select id="getCrawlingData" parameterType="map" resultMap="crawlingData">
+		SELECT A2.timeZone, COUNT(*) AS `count`
+		FROM article AS A1
+		INNER JOIN (
+			SELECT `code`, DATE_FORMAT(colDate, "%c-%e %H:%i") AS timeZone
+			FROM `article`) AS A2
+		ON A1.`code` = A2.`code`
+		<if test="categoryCode != 0 and categoryCode != null and categoryCode != ''">
+			INNER JOIN (
+				SELECT articleCode
+				FROM categorize
+				WHERE categoryCode = #{categoryCode}
+			) AS A3
+			ON A1.code = A3.articleCode
+		</if>
+		WHERE 1=1
+		<if test="siteCode != 0 and siteCode != null and siteCode != ''">
+			AND A1.siteCode=#{siteCode}
+		</if>
+		<if test="mediaCode != 0 and mediaCode != null and mediaCode != ''">
+			AND A1.mediaCode=#{mediaCode}
+		</if>
+		GROUP BY A2.timeZone
+	</select>
+	
+	<insert id="addMediaCode" parameterType="map" useGeneratedKeys="true" keyProperty="code">
+		INSERT INTO `media`
+		SET `name` = #{media}
+	</insert>
+	
+	<insert id="addArticle" parameterType="com.company.demo.dto.Article" useGeneratedKeys="true" keyProperty="code">
+		INSERT INTO article (id,siteCode,mediaCode,webPath,regDate,colDate,title,`body`,analysisState) 
+		SELECT #{id}, #{siteCode}, #{mediaCode}, #{webPath}, #{regDate}, NOW(),#{title}, #{body},0
+		WHERE NOT EXISTS (SELECT * FROM `article` WHERE id=#{id} AND siteCode=#{siteCode} AND mediaCode=#{mediaCode} )
+<!-- 		INSERT INTO article (id,siteCode,mediaCode,webPath,regDate,colDate,`body`,analysisState)  -->
+<!-- 		VALUES (#{id}, #{siteCode}, #{mediaCode}, #{webPath}, #{regDate}, NOW(),#{body},0) -->
+<!-- 		ON DUPLICATE KEY UPDATE -->
+<!-- 			`code` = LAST_INSERT_ID(`code`), -->
+<!-- 			webPath = VALUES(webPath), -->
+<!-- 			regDate = VALUES(regDate), -->
+<!-- 			colDate = VALUES(colDate), -->
+<!-- 			`body` = VALUES(`body`), -->
+<!-- 			analysisState = 0 -->
+	</insert>
+	
+	<update id="updateArticle" parameterType="com.company.demo.dto.Article">
+		UPDATE article
+		SET webPath = #{webPath}, 
+			regDate = #{regDate},
+			colDate = NOW(),
+			title = #{title},
+			`body` = #{body},
+			analysisState = 0
+		WHERE id = #{id}
+	</update>
+
+	<insert id="addCategorize" parameterType="map" >
+		INSERT INTO `categorize` (articleCode,categoryCode,regDate)
+		SELECT #{articleCode},#{categoryCode},NOW()
+		WHERE NOT EXISTS (SELECT * FROM `categorize` WHERE articleCode=#{articleCode} AND categoryCode=#{categoryCode} AND state=0 )
+	</insert>
+	
+	<insert id="addKeyword" parameterType="map" >
+		INSERT INTO `keyword` (word,articleCode,regDate)
+		VALUES 
+		<foreach collection="keywordList" item="value" separator=",">
+	        (#{value},#{articleCode},NOW())
+	    </foreach>
+	</insert>
+	
+	<update id="updateAnalysisState" parameterType="map" >
+		UPDATE `article`
+		SET analysisState = 1
+		WHERE `code` = #{code}
+	</update>
+	
+	<update id="setForeignKeyChecks" parameterType="int">
+		SET FOREIGN_KEY_CHECKS = #{value}
+	</update>
+	
+	<delete id="resetArticleKeyword" parameterType="com.company.demo.dto.Article">
+		DELETE FROM keyword
+		WHERE articleCode = #{code}
+	</delete>
+	
+	<delete id="truncateArticle">
+		TRUNCATE `article`
+	</delete>
+	
+	<delete id="truncateCategorize">
+		TRUNCATE `categorize`
+	</delete>	
+	
+	<delete id="truncateKeyword">
+		TRUNCATE `keyword`
+	</delete>
+	
+	<resultMap id="Article" type="com.company.demo.dto.Article">
+  		<result property="code" column="code"/>
+  		<result property="id" column="id"/>
+  		<result property="siteCode" column="siteCode"/>
+  		<result property="mediaCode" column="mediaCode"/>
+  		<result property="webPath" column="webPath"/>
+  		<result property="regDate" column="regDate"/>
+  		<result property="colDate" column="colDate"/>
+  		<result property="title" column="title"/>
+  		<result property="body" column="body"/>
+  		<result property="analysisState" column="analysisState"/>
+  	</resultMap> 
+  	
+  	<resultMap id="crawlingData" type="map">
+  		<result property="timeZone" column="timeZone"/>
+  		<result property="count" column="count"/>
+  	</resultMap> 
+  	
+  	<resultMap id="analyzedData" type="map">
+  		<result property="word" column="word"/>
+  		<result property="frequency" column="frequency"/>
+  	</resultMap> 
+</mapper>
+	

@@ -1,0 +1,22 @@
+custom:
+  filelPath: C:\work\daumsoft-probation\T6_1021\history
+server:
+  port: 8016
+spring:
+  mvc:
+    async:
+      request-timeout: 1200000
+    view:
+      prefix: /WEB-INF/jsp/ 
+      suffix: .jsp
+  data:
+    solr:
+      host: http://localhost:8983/solr/
+  datasource:
+    driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mariadb://localhost:3306/ds6?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    #driverClassName: org.mariadb.jdbc.Driver
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    #url: jdbc:log4jdbc:mysql://127.0.0.1:3306/ds?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: root
+    password: 'ksb1234'
